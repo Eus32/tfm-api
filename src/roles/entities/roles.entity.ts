@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToMany, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 
-import { User } from 'src/user/user.entity';
+import { User } from 'src/user/entities/user.entity';
 // import { Menus } from 'src/menus/menu.entity';
 import { Expose } from 'class-transformer';
 

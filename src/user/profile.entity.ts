@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
   DeleteDateColumn
 } from 'typeorm';
-import { User } from './user.entity';
+import { User } from './entities/user.entity';
 import { Expose } from 'class-transformer';
 
 @Entity()

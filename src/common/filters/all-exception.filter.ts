@@ -39,7 +39,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     console.log('---------ex--', exception)
 
-    httpAdapter.reply(ctx.getResponse(), responseBody);
+    httpAdapter.reply(ctx.getResponse(), responseBody, code);
     this.logger.error(responseBody)
   }
 }

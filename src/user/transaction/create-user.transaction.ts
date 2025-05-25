@@ -1,9 +1,8 @@
 import { EntityManager, DataSource } from 'typeorm';
 import { Injectable, HttpException } from '@nestjs/common';
 import * as argon2 from 'argon2';
-import { Roles } from "src/roles/roles.entity";
 import { BaseTransaction } from "../../common/typeorm/BaseTransaction"
-import { User } from '../user.entity';
+import { User } from '../entities/user.entity';
 import { Profile } from "../profile.entity";
 
 @Injectable()

@@ -9,17 +9,11 @@ import {
   DeleteDateColumn,
   OneToOne,
   ManyToMany,
-  // OneToMany,
-  // ManyToMany,
   JoinTable,
-  JoinColumn
-  // OneToOne,
-  // AfterInsert,
-  // AfterRemove,
+  JoinColumn,
 } from 'typeorm';
-// import { Logs } from 'src/logs/logs.entity';
-import { Roles } from 'src/roles/roles.entity';
-import { Profile } from './profile.entity';
+import { Roles } from 'src/roles/entities/roles.entity';
+import { Profile } from '../profile.entity';
 
 @Entity()
 export class User extends BaseEntity {
@@ -27,18 +21,19 @@ export class User extends BaseEntity {
   id: number;
 
   @Column()
-  @Generated("uuid")
+  @Generated('uuid')
   uuid: string;
 
   @Column({
-    unique: true, type: "varchar",
+    unique: true,
+    type: 'varchar',
     length: 150,
   })
   username: string;
 
   @Column({
-    type: "varchar",
-    length: 100
+    type: 'varchar',
+    length: 100,
   })
   password: string;
 
@@ -50,7 +45,6 @@ export class User extends BaseEntity {
   @JoinTable({ name: 'users_roles' })
   roles: Roles[];
 
-
   @CreateDateColumn()
   created_at: Date;
 
@@ -59,5 +53,4 @@ export class User extends BaseEntity {
 
   @DeleteDateColumn()
   deleted_at: Date;
-
 }

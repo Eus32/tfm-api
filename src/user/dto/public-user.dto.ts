@@ -1,5 +1,5 @@
 import { Exclude, Expose } from 'class-transformer';
-import { Roles } from 'src/roles/roles.entity';
+import { Roles } from 'src/roles/entities/roles.entity';
 import { Profile } from '../profile.entity';
 
 

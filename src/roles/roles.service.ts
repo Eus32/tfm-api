@@ -2,8 +2,8 @@ import { Injectable, BadRequestException, HttpException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { Roles } from './roles.entity';
-import { User } from '../user/user.entity';
+import { Roles } from './entities/roles.entity';
+import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()

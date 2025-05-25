@@ -14,6 +14,7 @@ import { ConfigEnum } from './config/enum';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { RolesModule } from './roles/roles.module';
+import { BookModule } from './book/book.module';
 const envFilePath = `.env.${process.env.NODE_ENV || `development`}`;
 
 const format = winston.format;
@@ -98,10 +99,11 @@ Global();
     UserModule,
     AuthModule,
     RolesModule,
+    BookModule,
   ],
   controllers: [],
   providers: [
-    Logger
+    Logger,
   ],
   exports: [Logger],
 })

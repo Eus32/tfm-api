@@ -10,6 +10,7 @@ import { AppModule } from './app.module';
 import { getServerConfig } from "./config";
 import { ConfigEnum } from "./config/enum"
 import { LoggingInterceptor } from './common/interceptors/logger.interceptor';
+import { SpelunkerModule } from 'nestjs-spelunker';
 
 
 async function bootstrap() {
@@ -41,6 +42,14 @@ async function bootstrap() {
 
     }),
   );
+  const tree = SpelunkerModule.explore(app);
+  const root = SpelunkerModule.graph(tree);
+  const edges = SpelunkerModule.findGraphEdges(root);
+
+  const mermaidEdges = edges
+    .map(({ from, to }) => `${from.module.name}-->${to.module.name}`);
+  console.log(`graph TD\n\t${mermaidEdges.join('\n\t')}`);
+
   app.use(
     rateLimit({
       windowMs: 1 * 60 * 1000, // 1 minutes

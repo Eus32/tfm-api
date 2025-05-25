@@ -24,6 +24,7 @@ export class AuthService {
     return await this.jwt.signAsync({
       username: user.username,
       sub: user.id,
+      expiresIn: 600
     });
   }
 

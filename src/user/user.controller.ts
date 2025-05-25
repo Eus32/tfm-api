@@ -8,7 +8,7 @@ import {
   Query,
   UseGuards
 } from '@nestjs/common';
-import { User } from './user.entity';
+import { User } from './entities/user.entity';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { getUserDto } from './dto/get-user.dto';
