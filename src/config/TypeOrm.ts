@@ -38,7 +38,7 @@ export const validationSchema = Joi.object({
         .valid('development', 'production', 'test')
         .default('development'),
     DB_PORT: Joi.number().default(3306),
-    DB_HOST: Joi.alternatives().try(Joi.string().ip(), Joi.string().domain()),
+    DB_HOST: Joi.alternatives().try(Joi.string().ip(), Joi.string()),
     DB_TYPE: Joi.string().valid('mysql', 'postgres'),
     DB_DATABASE: Joi.string().required(),
     DB_USERNAME: Joi.string().required(),

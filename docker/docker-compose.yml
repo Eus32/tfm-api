@@ -3,30 +3,66 @@ version: '3.1'
 services:
   db:
     image: postgres:14-alpine
-    ports:
-      - 5432:5432
+    hostname: postgres
     volumes:
       - ~/apps/postgres:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=example
       - POSTGRES_USER=root
       - POSTGRES_DB=testdb
+    networks:
+      - fullstack
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U root -d testdb'"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
 
-  # navicat
   adminer:
     image: adminer
     restart: always
+    expose:
+      - 8081
     ports:
       - 8081:8080
+    networks:
+      - fullstack
 
   cache:
     image: redis:6.2-alpine
     restart: always
+    expose:
+      - '6379'
     ports:
-      - '6379:6379'
+      - 6379:6379
     command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
     volumes: 
       - cache:/data
+    networks:
+      - fullstack
+
+  api:
+    image: tfm-api
+    build:
+      dockerfile: docker/Dockerfile
+      context: ..
+    ports:
+      - 3000:3000
+    restart: on-failure
+    networks:
+      - fullstack
+    volumes:
+      - ./logs:/usr/src/app/logs:rw
+    depends_on:
+      - db
+      - cache
+    
+
 volumes:
   cache:
     driver: local
+
+networks:
+    fullstack:
+      driver: bridge
+

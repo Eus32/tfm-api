@@ -7,6 +7,7 @@ import {
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Logger } from 'winston';
+import { inspect } from 'util'; // or directly
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
@@ -16,7 +17,8 @@ export class LoggingInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest();
     const startTime = Date.now();
     return next.handle().pipe(
-      tap((response) => {
+      tap(() => {
+        const response = context.switchToHttp().getResponse();
         const responseTime = Date.now() - startTime;
         this.logger.log({
           level: 'info',
@@ -25,7 +27,8 @@ export class LoggingInterceptor implements NestInterceptor {
             url: request.url,
             statusCode: response?.statusCode,
             responseTime: `${responseTime}ms`,
-            data: response?.data,
+            reqHeaders: request?.headers,
+            reqBody: request?.body
           })
         });
       }),

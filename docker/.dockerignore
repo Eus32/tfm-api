@@ -1,0 +1,7 @@
+.git
+node_modules
+.vscode
+.DS_Store
+coverage
+.env*
+*.log

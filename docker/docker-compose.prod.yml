@@ -24,3 +24,7 @@ services:
     restart: always
     ports:
       - 12005:8080
+
+networks:
+    fullstack:
+        driver: bridge

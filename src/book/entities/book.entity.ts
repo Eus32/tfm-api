@@ -1,5 +1,6 @@
 import { Expose } from 'class-transformer';
 import {
+  BaseEntity,
   Column,
   CreateDateColumn,
   DeleteDateColumn,
@@ -9,7 +10,7 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class Book {
+export class Book extends BaseEntity {
   @PrimaryGeneratedColumn()
   @Expose()
   id: number;
