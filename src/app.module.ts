@@ -1,4 +1,4 @@
-import { Module, Logger, LoggerService, Global } from '@nestjs/common';
+import { Module, Logger, Global, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { WinstonModule } from 'nest-winston';
@@ -15,6 +15,8 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { RolesModule } from './roles/roles.module';
 import { BookModule } from './book/book.module';
+import { RequestLoggerMiddleware } from './common/interceptors/logger.middleware';
+import { LoggerService } from './common/logger/logger.service';
 const envFilePath = `.env.${process.env.NODE_ENV || `development`}`;
 
 const format = winston.format;
@@ -107,4 +109,8 @@ Global();
   ],
   exports: [Logger],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+  }
+}

@@ -11,6 +11,7 @@ import { getServerConfig } from "./config";
 import { ConfigEnum } from "./config/enum"
 import { LoggingInterceptor } from './common/interceptors/logger.interceptor';
 import { SpelunkerModule } from 'nestjs-spelunker';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 
 async function bootstrap() {
@@ -19,6 +20,14 @@ async function bootstrap() {
   });
   const config = getServerConfig();
 
+  const configDocument = new DocumentBuilder()
+    .setTitle('TFM')
+    .setDescription('Eus Vercher Gómez')
+    .setVersion('1.0')
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, configDocument);
+  SwaggerModule.setup('api', app, documentFactory);
+
   const port = config[ConfigEnum.APP_PORT]
   const nestWinston = app.get(WINSTON_MODULE_NEST_PROVIDER);
   app.useLogger(nestWinston);
@@ -26,8 +35,8 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
 
   const httpAdapter = app.get(HttpAdapterHost);
+  app.useGlobalInterceptors(new LoggingInterceptor(nestWinston.logger), new TransformInterceptor());
   app.useGlobalFilters(new AllExceptionsFilter(nestWinston.logger, httpAdapter));
-  app.useGlobalInterceptors(new TransformInterceptor(), new LoggingInterceptor(nestWinston.logger));
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

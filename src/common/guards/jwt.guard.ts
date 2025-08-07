@@ -21,7 +21,7 @@ export class JwtGuard extends AuthGuard('jwt') {
     // const cacheToken = this.redis.get(token);
     try {
       if (!token) {
-        throw new UnauthorizedException('Invalid Token!');
+        throw new UnauthorizedException('Missing Token');
       }
 
       const secret = this.configService.get(ConfigEnum.SECRET)

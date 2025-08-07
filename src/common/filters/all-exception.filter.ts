@@ -36,10 +36,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
       code,
       message
     };
-
-    console.log('---------ex--', exception)
-
-    httpAdapter.reply(ctx.getResponse(), responseBody, code);
+    
     this.logger.error(responseBody)
+    httpAdapter.reply(ctx.getResponse(), responseBody, code);
   }
 }
