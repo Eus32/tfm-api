@@ -1,10 +1,16 @@
-import { Module, Logger, Global, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import {
+  Module,
+  Logger,
+  Global,
+  NestModule,
+  MiddlewareConsumer,
+} from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import * as dotenv from 'dotenv';
-import { RedisModule } from '@nestjs-modules/ioredis';
+import { getRedisConnectionToken, RedisModule } from '@nestjs-modules/ioredis';
 
 import DailyRotateFile = require('winston-daily-rotate-file');
 
@@ -16,7 +22,11 @@ import { AuthModule } from './auth/auth.module';
 import { RolesModule } from './roles/roles.module';
 import { BookModule } from './book/book.module';
 import { RequestLoggerMiddleware } from './common/interceptors/logger.middleware';
-import { LoggerService } from './common/logger/logger.service';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { RedisThrottlerStorage } from './common/storage/redis-throttler.storage';
+import Redis from 'ioredis';
+import { APP_GUARD } from '@nestjs/core';
+import { CustomThrottlerGuard } from './common/guards/throttle.guard';
 const envFilePath = `.env.${process.env.NODE_ENV || `development`}`;
 
 const format = winston.format;
@@ -45,9 +55,8 @@ Global();
       ],
       validationSchema,
     }),
-    // Redis
     RedisModule.forRootAsync({
-      useFactory: (configService: ConfigService, logger: LoggerService) => {
+      useFactory: (configService: ConfigService) => {
         const host = configService.get(ConfigEnum.REDIS_HOST);
         const port = configService.get(ConfigEnum.REDIS_PORT);
         const password = configService.get(ConfigEnum.REDIS_PASSWORD);
@@ -59,7 +68,7 @@ Global();
           type: 'single',
           options: {
             reconnectOnError: (err: any) => {
-              // logger.error(`Redis Connection error: ${err}`);
+              console.log('Redis error: ', err)
               return true;
             },
           },
@@ -67,8 +76,9 @@ Global();
       },
       inject: [ConfigService],
     }),
-    TypeOrmModule.forRoot( // Import ConfigModule to access ConfigService
-       buildConnectionOptions(), // Pass the typeOrmConfig function as the factory
+    TypeOrmModule.forRoot(
+      // Import ConfigModule to access ConfigService
+      buildConnectionOptions(), // Pass the typeOrmConfig function as the factory
     ),
     WinstonModule.forRoot({
       exitOnError: false,
@@ -82,7 +92,9 @@ Global();
         }),
         format.splat(),
         format.printf((info) => {
-          return `${info.timestamp} ${info.level}: [${info.label}]${JSON.stringify(info.message)}`;
+          return `${info.timestamp} ${info.level}: [${
+            info.label
+          }]${JSON.stringify(info.message)}`;
         }),
       ),
       transports: [
@@ -98,6 +110,16 @@ Global();
         }),
       ],
     }),
+    ThrottlerModule.forRootAsync({
+      imports: [RedisModule],
+      inject: [getRedisConnectionToken()],
+      useFactory: (redis: Redis) => {
+        return {
+          throttlers: [{ limit: 10, ttl: 60 }],
+          storage: new RedisThrottlerStorage(redis),
+        };
+      },
+    }),
     UserModule,
     AuthModule,
     RolesModule,
@@ -106,8 +128,14 @@ Global();
   controllers: [],
   providers: [
     Logger,
+    Redis,
+    RedisThrottlerStorage,
+    {
+      provide: APP_GUARD,
+      useClass: CustomThrottlerGuard,
+    },
   ],
-  exports: [Logger],
+  exports: [Logger, Redis],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
