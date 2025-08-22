@@ -1,10 +1,9 @@
-import { ExecutionContext, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import {
   ThrottlerGuard,
   ThrottlerModuleOptions,
   ThrottlerRequest,
-  ThrottlerStorageService,
 } from '@nestjs/throttler';
 import { RedisThrottlerStorage } from '../storage/redis-throttler.storage';
 
@@ -12,7 +11,7 @@ import { RedisThrottlerStorage } from '../storage/redis-throttler.storage';
 export class CustomThrottlerGuard extends ThrottlerGuard {
   constructor(
     options: ThrottlerModuleOptions,
-    reflector: Reflector,
+    @Inject(Reflector) reflector: Reflector,
     private readonly redisStorageService: RedisThrottlerStorage,
   ) {
     super(options, redisStorageService, reflector);
@@ -60,7 +59,6 @@ export class CustomThrottlerGuard extends ThrottlerGuard {
       isBlocked,
       remaining: Math.max(limit - totalHits, 0),
     };
-
     if (isBlocked) {
       await this.throwThrottlingException(context, {
         limit,

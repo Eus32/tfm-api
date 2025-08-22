@@ -59,7 +59,25 @@ export class RequestLoggerMiddleware implements NestMiddleware {
           : req.headers.authorization ?? '',
         origin: headers['origin'] || null,
       },
-      security: {
+    };
+
+    const startHrTime = process.hrtime();
+
+    res.on('finish', () => {
+      const durationMs = this.calculateDuration(startHrTime);
+      const logLevel = res.statusCode >= 400 ? 'error' : 'info';
+
+      const response = {
+        requestId,
+        stage: 'end',
+        statusCode: res.statusCode,
+        duration: `${durationMs} ms`,
+        method,
+        url: originalUrl,
+        responseSize: res.getHeader('content-length')
+      };
+
+      const security = {
         failed_auth_attempts_last_10min: req?.throttleInfo?.totalHits,
         // rate_limit_hits: 0,
         suspicious_patterns_detected: this.detectSuspiciousPatterns(
@@ -68,40 +86,9 @@ export class RequestLoggerMiddleware implements NestMiddleware {
           headers,
         ),
         // unusual_headers: false,
-      },
-    };
+      }
 
-    /**
-    this.logger.info({
-      requestId,
-      stage: 'start',
-      method,
-      url: originalUrl,
-      timestamp,
-      headers,
-      query,
-      body,
-      ip: req.headers['x-forwarded-for'] || req.ip || req.socket?.remoteAddress,
-    });
-     */
-
-    const startHrTime = process.hrtime();
-
-    res.on('finish', () => {
-      const durationMs = this.calculateDuration(startHrTime);
-      const logLevel = res.statusCode >= 400 ? 'error' : 'info';
-
-      const responseSuccess = {
-        requestId,
-        stage: 'end',
-        statusCode: res.statusCode,
-        duration: `${durationMs} ms`,
-        method,
-        url: originalUrl,
-        responseSize: res.getHeader('content-length'),
-      };
-
-      this.logger[logLevel]({ ...logData, response: responseSuccess });
+      this.logger[logLevel]({ ...logData, security, response: response });
     });
 
     res.on('error', (err) => {
@@ -117,7 +104,18 @@ export class RequestLoggerMiddleware implements NestMiddleware {
         duration: `${errorTime} ms`,
       }
 
-      this.logger.error({ ...logData, response: responseError });
+      const security = {
+        failed_auth_attempts_last_10min: req?.throttleInfo?.totalHits,
+        // rate_limit_hits: 0,
+        suspicious_patterns_detected: this.detectSuspiciousPatterns(
+          query,
+          body,
+          headers,
+        ),
+        // unusual_headers: false,
+      }
+
+      this.logger.error({ ...logData, security, response: responseError });
     });
 
     next();
@@ -149,8 +147,41 @@ export class RequestLoggerMiddleware implements NestMiddleware {
   ): string[] {
     const input = JSON.stringify({ query, body, headers });
     const patterns = [];
-    if (/union\s+select/i.test(input)) patterns.push('sql_injection');
-    if (/<script>/i.test(input)) patterns.push('xss');
+
+    // SQL Injection
+    if (/(\bunion\b|\bselect\b|\bdrop\b|\binsert\b|\bdelete\b|\bupdate\b|\bwhere\b|\b--\b|;)/i.test(input)) patterns.push('sql_injection');
+    if (/(\bor\b|\band\b)[\s\S]*?=|['"]\s*?=\s*?['"]/i.test(input)) patterns.push('sql_injection_logic');
+    if (/(\b1=1\b|\b0=0\b)/i.test(input)) patterns.push('sql_injection_always_true');
+
+    // XSS
+    if (/<script[\s\S]*?>[\s\S]*?<\/script>/i.test(input)) patterns.push('xss_script_tag');
+    if (/onerror\s*=\s*['"]?[\w]+/i.test(input)) patterns.push('xss_onerror');
+    if (/javascript:/i.test(input)) patterns.push('xss_js_uri');
+    if (/<img[\s\S]*?src=['"]?javascript:/i.test(input)) patterns.push('xss_img_js');
+
+    // Path traversal
+    if (/(\.\.\/|\.\.\\)/.test(input)) patterns.push('path_traversal');
+
+    // Command injection
+    if (/(\bcat\b|\bping\b|\bwget\b|\bcurl\b|\bsh\b|\bbash\b)/i.test(input)) patterns.push('cmd_injection');
+    if (/[`$|&;]/.test(input)) patterns.push('cmd_injection_symbol');
+
+    // LDAP Injection
+    if (/(\*\)|\(|\)|\||&)/.test(input) && /ldap/i.test(input)) patterns.push('ldap_injection');
+
+    // SSTI (Server Side Template Injection)
+    if (/(\{\{.*\}\}|\{%.+?%\})/.test(input)) patterns.push('ssti');
+
+    // Open Redirect
+    if (/redirect=.*(http|\/\/)/i.test(input)) patterns.push('open_redirect');
+
+    // Sensitive headers
+    if (headers['authorization']) patterns.push('authorization_header_present');
+    if (headers['cookie']) patterns.push('cookie_header_present');
+
+    // Generic suspicious characters
+    if (/['"`\\]/.test(input)) patterns.push('suspicious_quotes_or_escape');
+
     return patterns.length ? patterns : ['none'];
   }
 }

@@ -1,8 +1,8 @@
 {
-  "name": "project-name",
-  "version": "0.0.1",
+  "name": "tfm-eus",
+  "version": "1.0.0",
   "description": "",
-  "author": "",
+  "author": "Eus Vercher",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
@@ -37,7 +37,7 @@
     "cross-env": "^7.0.3",
     "express-rate-limit": "^7.5.0",
     "geoip-lite": "^1.4.10",
-    "ioredis": "^5.6.1",
+    "ioredis": "^5.7.0",
     "joi": "^17.13.3",
     "mysql2": "^3.14.1",
     "nest-winston": "^1.10.2",

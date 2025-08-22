@@ -4,14 +4,20 @@ import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 import Redis from 'ioredis';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import { resolve } from 'node:path/win32';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
     private jwt: JwtService,
-    private readonly redis: Redis,
-  ) {}
+    @InjectRedis() private readonly redis: Redis,
+  ) {
+    redis.on('error', (err) => {
+          console.error('Redis error:', err);
+        });
+  }
 
   async signin(username: string, password: string) {
     const user = await this.userService.find(username);
@@ -33,7 +39,7 @@ export class AuthService {
     }
 
     await this.redis.del(this.getKey(username));
-    
+
     return await this.jwt.signAsync({
       username: user.username,
       sub: user.id,

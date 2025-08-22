@@ -66,9 +66,9 @@ Global();
         return {
           url,
           type: 'single',
+
           options: {
             reconnectOnError: (err: any) => {
-              console.log('Redis error: ', err)
               return true;
             },
           },
@@ -83,7 +83,7 @@ Global();
     WinstonModule.forRoot({
       exitOnError: false,
       format: format.combine(
-        format.colorize(),
+        // format.colorize(),
         format.timestamp({
           format: 'HH:mm:ss YY/MM/DD',
         }),
@@ -92,9 +92,7 @@ Global();
         }),
         format.splat(),
         format.printf((info) => {
-          return `${info.timestamp} ${info.level}: [${
-            info.label
-          }]${JSON.stringify(info.message)}`;
+          return `${info.timestamp} [${info.level}]: ${JSON.stringify(info.message)}`;
         }),
       ),
       transports: [
@@ -114,8 +112,11 @@ Global();
       imports: [RedisModule],
       inject: [getRedisConnectionToken()],
       useFactory: (redis: Redis) => {
+        redis.on('error', (err) => {
+          console.error('Redis error:', err);
+        });
         return {
-          throttlers: [{ limit: 10, ttl: 60 }],
+          throttlers: [{ limit: 3, ttl: 60 }],
           storage: new RedisThrottlerStorage(redis),
         };
       },
@@ -128,14 +129,13 @@ Global();
   controllers: [],
   providers: [
     Logger,
-    Redis,
     RedisThrottlerStorage,
     {
       provide: APP_GUARD,
       useClass: CustomThrottlerGuard,
     },
   ],
-  exports: [Logger, Redis],
+  exports: [Logger, RedisModule],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

@@ -9,13 +9,10 @@ export class TypeormFilter implements ExceptionFilter {
     if (exception instanceof QueryFailedError) {
       code = exception.driverError.errno;
     }
-    console.log('---- exception', exception)
     const response = ctx.getResponse();
     response.status(500).json({
       code: code,
       timestamp: new Date().toISOString(),
-      // path: request.url,
-      // method: request.method,
       message: exception.message,
     });
   }

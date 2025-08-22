@@ -24,7 +24,6 @@ export class Book extends BaseEntity {
   title: string;
 
   @Column({
-    unique: true,
     type: 'varchar',
     length: 150,
   })
@@ -32,7 +31,6 @@ export class Book extends BaseEntity {
   author: string;
 
   @Column({
-    unique: true,
     type: 'varchar',
     length: 150,
   })

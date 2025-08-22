@@ -7,21 +7,18 @@ import { UserModule } from 'src/user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ConfigEnum } from 'src/config/enum';
 import { JwtStrategy } from './auth.strategy';
-import { getRedisConnectionToken, RedisModule } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
+import { RedisModule } from '@nestjs-modules/ioredis';
 
 @Global()
 @Module({
   imports: [
     UserModule,
     PassportModule,
-    RedisModule,
+    RedisModule, 
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        // console.log({
-        //   secret: configService.get<string>(ConfigEnum.SECRET),
-        // });
         return {
           secret: configService.get<string>(ConfigEnum.SECRET),
           signOptions: {
@@ -29,10 +26,10 @@ import Redis from 'ioredis';
           },
         };
       },
-      inject: [ConfigService, getRedisConnectionToken()],
+      inject: [ConfigService],
     })
   ],
-  providers: [AuthService, JwtStrategy, Redis],
-  controllers: [AuthController]
+  providers: [AuthService, JwtStrategy],
+  controllers: [AuthController],
 })
 export class AuthModule { }

@@ -4,6 +4,10 @@ services:
   db:
     image: postgres:14-alpine
     hostname: postgres
+    expose:
+      - '5432'
+    ports:
+      - '5432:5432'
     volumes:
       - ~/apps/postgres:/var/lib/postgresql/data
     environment:
@@ -34,28 +38,28 @@ services:
     expose:
       - '6379'
     ports:
-      - 6379:6379
-    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel verbose --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
     volumes: 
       - cache:/data
     networks:
       - fullstack
 
-  api:
-    image: tfm-api
-    build:
-      dockerfile: docker/Dockerfile
-      context: ..
-    ports:
-      - 3000:3000
-    restart: on-failure
-    networks:
-      - fullstack
-    volumes:
-      - ./logs:/usr/src/app/logs:rw
-    depends_on:
-      - db
-      - cache
+  # api:
+  #   image: tfm-api
+  #   build:
+  #     dockerfile: docker/Dockerfile
+  #     context: ..
+  #   ports:
+  #     - 3000:3000
+  #   restart: on-failure
+  #   networks:
+  #     - fullstack
+  #   volumes:
+  #     - ./logs:/usr/src/app/logs:rw
+  #   depends_on:
+  #     - db
+  #     - cache
     
 
 volumes:

@@ -2,10 +2,15 @@ import { InjectRedis } from '@nestjs-modules/ioredis';
 import { Injectable } from '@nestjs/common';
 import { ThrottlerStorage } from '@nestjs/throttler';
 import { ThrottlerStorageRecord } from '@nestjs/throttler/dist/throttler-storage-record.interface';
+import Redis from 'ioredis';
 
 @Injectable()
 export class RedisThrottlerStorage implements ThrottlerStorage {
-  constructor(@InjectRedis() private readonly redis: any) {}
+  constructor(@InjectRedis() private readonly redis: Redis) {
+    redis.on('error', (err) => {
+          console.error('Redis error:', err);
+        });
+  }
 
   async increment(
     key: string,

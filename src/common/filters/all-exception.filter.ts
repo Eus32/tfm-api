@@ -28,16 +28,20 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message = exception.message
     } else if (exception instanceof TypeORMError) {
       message = exception.message
+    } else {
+      message = exception?.toString() || 'Unknown error';
     }
 
-
+    if (code === HttpStatus.INTERNAL_SERVER_ERROR) {
+      message = 'Internal Server Error';
+    }
 
     const responseBody = {
       code,
       message
     };
     
-    this.logger.error(responseBody)
+    console.log(exception);
     httpAdapter.reply(ctx.getResponse(), responseBody, code);
   }
 }

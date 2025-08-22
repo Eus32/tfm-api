@@ -9,8 +9,6 @@ import { TransformInterceptor } from "./common/interceptors/transform.intercepto
 import { AppModule } from './app.module';
 import { getServerConfig } from "./config";
 import { ConfigEnum } from "./config/enum"
-import { LoggingInterceptor } from './common/interceptors/logger.interceptor';
-import { SpelunkerModule } from 'nestjs-spelunker';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 
@@ -35,7 +33,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
 
   const httpAdapter = app.get(HttpAdapterHost);
-  app.useGlobalInterceptors(new LoggingInterceptor(nestWinston.logger), new TransformInterceptor());
+  app.useGlobalInterceptors(/* new LoggingInterceptor(nestWinston.logger),*/ new TransformInterceptor());
   app.useGlobalFilters(new AllExceptionsFilter(nestWinston.logger, httpAdapter));
   app.useGlobalPipes(
     new ValidationPipe({
@@ -51,13 +49,6 @@ async function bootstrap() {
 
     }),
   );
-  const tree = SpelunkerModule.explore(app);
-  const root = SpelunkerModule.graph(tree);
-  const edges = SpelunkerModule.findGraphEdges(root);
-
-  const mermaidEdges = edges
-    .map(({ from, to }) => `${from.module.name}-->${to.module.name}`);
-  console.log(`graph TD\n\t${mermaidEdges.join('\n\t')}`);
 
   app.use(
     rateLimit({

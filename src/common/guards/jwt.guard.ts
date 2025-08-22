@@ -5,12 +5,16 @@ import { verify, TokenExpiredError } from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { ConfigEnum } from '../../config/enum';
 import { InjectRedis } from '@nestjs-modules/ioredis';
+import Redis from 'ioredis';
 
 export class JwtGuard extends AuthGuard('jwt') {
   constructor(
     private configService: ConfigService,
-    @InjectRedis() private readonly redis: any,
+    @InjectRedis() private readonly redis: Redis,
   ) {
+    redis.on('error', (err) => {
+          console.error('Redis error:', err);
+        });
     super();
   }
 
