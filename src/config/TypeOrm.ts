@@ -50,6 +50,5 @@ export const validationSchema = Joi.object({
 
 export const dataSource = new DataSource({
     ...connectionParams,
-    // migrations: ['./dist/src/migrations/**'],
     subscribers: [],
 } as DataSourceOptions);

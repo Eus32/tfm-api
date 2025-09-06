@@ -14,7 +14,6 @@ export function getEnv(env: string): Record<string, unknown> {
 export function getServerConfig() {
     const defaultConfig = getEnv('../../.env');
     const envConfig = getEnv(`../../.env.${process.env.NODE_ENV || 'development'}`);
-    // configService
     const config = { ...defaultConfig, ...envConfig };
     return config;
 }

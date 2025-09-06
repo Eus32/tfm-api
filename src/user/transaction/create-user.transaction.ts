@@ -11,7 +11,6 @@ export class CreateUserTransaction extends BaseTransaction<Partial<User>, User> 
         super(dataSource);
     }
 
-    // the important thing here is to use the manager that we've created in the base class
     protected async execute(data: Partial<User>, manager: EntityManager): Promise<User> {
         const hasUser = await manager.findOneBy("user", { username: data.username })
         if (hasUser) throw new HttpException("The user already exists", 500);
@@ -37,8 +36,6 @@ export class CreateUserTransaction extends BaseTransaction<Partial<User>, User> 
         }
 
         const newUser = await manager.save(createUser)
-
-
         return newUser
     }
 

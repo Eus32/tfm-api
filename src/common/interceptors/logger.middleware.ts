@@ -20,7 +20,6 @@ export class RequestLoggerMiddleware implements NestMiddleware {
     next: NextFunction,
   ) {
     const requestId = uuidv4();
-    const timestamp = Date.now();
     const { method, originalUrl, headers, body, query, params, ip } = req;
 
     res.setHeader('X-Request-ID', requestId);
@@ -69,7 +68,6 @@ export class RequestLoggerMiddleware implements NestMiddleware {
 
       const response = {
         requestId,
-        stage: 'end',
         statusCode: res.statusCode,
         duration: `${durationMs} ms`,
         method,
@@ -112,7 +110,6 @@ export class RequestLoggerMiddleware implements NestMiddleware {
           body,
           headers,
         ),
-        // unusual_headers: false,
       }
 
       this.logger.error({ ...logData, security, response: responseError });

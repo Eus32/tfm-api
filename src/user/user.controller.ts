@@ -18,16 +18,12 @@ import { JwtGuard } from "../common/guards/jwt.guard"
 import { PublicUserDto } from './dto/public-user.dto';
 
 @Controller('user')
-// @UseFilters(new TypeormFilter())
 @UseGuards(JwtGuard)
 export class UserController {
-  // private logger = new Logger(UserController.name);
 
   constructor(
     private userService: UserService
-  ) {
-    // this.logger.log('UserController init');
-  }
+  ) {}
 
   @Get()
   @Serialize(PublicUserDto)
@@ -35,13 +31,10 @@ export class UserController {
     return this.userService.findAll(query);
   }
 
-
   @Get('/:id')
-  getUser(): any {
-    return 'hello world';
-    // return this.userService.getUsers();
+  getUser(@Param('id') id: number): any {
+    return this.userService.findOne(id);
   }
-
 
   @Post()
   @Serialize(PublicUserDto)
@@ -50,7 +43,7 @@ export class UserController {
     return this.userService.create(user);
   }
 
-  @Delete('/:id') // RESTfull Method
+  @Delete('/:id')
   removeUser(@Param('id') id: number): any {
     return this.userService.remove(id);
   }

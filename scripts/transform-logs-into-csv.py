@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
+
 import json
 import pandas as pd
 
-log_file = "../logs/application-2025-08-20-21.log"
+log_file = "../logs/other-computer.log"
 
 rows = []
 with open(log_file, "r", encoding="utf-8") as f:
@@ -32,7 +34,7 @@ with open(log_file, "r", encoding="utf-8") as f:
                 "responseSize": int(str(data.get("response", {}).get("responseSize", "0")).replace('"', '').strip()),
                 # Si suspicious_patterns_detected contiene 'authorization' y el statusCode es 2xx o 3xx, no marcar como vulnerabilidad
                 "label_attack": 0 if (
-                    "authorization" in ",".join(data.get("security", {}).get("suspicious_patterns_detected", []))                        and 200 <= int(data.get("response", {}).get("statusCode", 200)) < 400
+                    "authorization" in ",".join(data.get("security", {}).get("suspicious_patterns_detected", [])) and 200 <= int(data.get("response", {}).get("statusCode", 200)) < 400
                 ) else (
                     1 if data.get("security", {}).get("suspicious_patterns_detected") else 0
                 )

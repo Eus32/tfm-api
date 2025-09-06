@@ -1,7 +1,6 @@
 import { Column, Entity, ManyToMany, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 
 import { User } from 'src/user/entities/user.entity';
-// import { Menus } from 'src/menus/menu.entity';
 import { Expose } from 'class-transformer';
 
 @Entity()
@@ -30,7 +29,4 @@ export class Roles {
   @DeleteDateColumn()
   deleted_at: Date;
 
-  // @ManyToMany(() => Menus, (menus) => menus.role)
-  // @Expose()
-  // menus: Menus[];
 }

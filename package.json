@@ -1,7 +1,7 @@
 {
   "name": "tfm-eus",
   "version": "1.0.0",
-  "description": "",
+  "description": "Api implementada para poder recoger logs y detectar ataques",
   "author": "Eus Vercher",
   "private": true,
   "license": "UNLICENSED",

@@ -45,18 +45,15 @@ export class AuthController {
   async signup(@Body() dto: SigninUserDto) {
     const { username, password } = dto;
     if (!username || !password) {
-      console.log('1')
       throw new HttpException('No username or password', 400);
     }
     if (typeof username !== 'string' || typeof password !== 'string') {
-      console.log('2')
       throw new HttpException('Username and password should be strings', 400);
     }
     if (
       !(typeof username == 'string' && username.length >= 6) ||
       !(typeof password === 'string' && password.length >= 6)
     ) {
-      console.log('3')
       throw new HttpException('Username and password length greater than 6 characters ', 400);
     }
     return await this.authService.signup(username, password);

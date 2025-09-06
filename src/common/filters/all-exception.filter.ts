@@ -40,8 +40,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
       code,
       message
     };
-    
-    console.log(exception);
     httpAdapter.reply(ctx.getResponse(), responseBody, code);
   }
 }

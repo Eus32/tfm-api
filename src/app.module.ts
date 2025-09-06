@@ -77,13 +77,11 @@ Global();
       inject: [ConfigService],
     }),
     TypeOrmModule.forRoot(
-      // Import ConfigModule to access ConfigService
-      buildConnectionOptions(), // Pass the typeOrmConfig function as the factory
+      buildConnectionOptions(),
     ),
     WinstonModule.forRoot({
       exitOnError: false,
       format: format.combine(
-        // format.colorize(),
         format.timestamp({
           format: 'HH:mm:ss YY/MM/DD',
         }),

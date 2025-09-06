@@ -50,7 +50,6 @@ export class CustomThrottlerGuard extends ThrottlerGuard {
         throttler?.name || 'throttle-name',
       );
 
-    // Guardar datos útiles en la request
     req.throttleInfo = {
       totalHits,
       limit,

@@ -1,4 +1,6 @@
 import requests
+import time
+import random
 
 BASE_URL = "http://localhost:3000/api/v1"
 
@@ -53,13 +55,19 @@ def get_books(token):
     return r
 
 if __name__ == "__main__":
-    num_calls = 200
+    num_calls = 400
+    delay_seconds = 0.5
+    base = 62000
     for i in range(num_calls):
-        USER["username"] = f"testuser{i+1}"
+        index = base + i
+        USER["username"] = f"testuser{index+1}"
         signup()
         token = signin()
         if not token:
-            print(f"❌ No se pudo obtener token en iteración {i+1}")
+            print(f"❌ No se pudo obtener token en iteración {index+1}")
             continue
-        create_book(token, f"Libro {i+1}", f"Autor {i+1}", f"Editorial {i+1}")
+        create_book(token, f"Libro {index+1}", f"Autor {index+1}", f"Editorial {index+1}")
         get_books(token)
+        
+        jitter = random.uniform(0, 0.5)
+        time.sleep(delay_seconds + jitter)

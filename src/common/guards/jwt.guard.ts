@@ -19,7 +19,6 @@ export class JwtGuard extends AuthGuard('jwt') {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // custom logic can go here
     const request = context.switchToHttp().getRequest();
     const token = ExtractJwt.fromAuthHeaderAsBearerToken()(request);
     try {
@@ -37,8 +36,7 @@ export class JwtGuard extends AuthGuard('jwt') {
         throw new UnauthorizedException('Invalid Token');
       }
 
-      const parentCanActivate = (await super.canActivate(context)) as boolean; // this is necessary due to possibly returning `boolean | Promise<boolean> | Observable<boolean>
-      // custom logic goes here too
+      const parentCanActivate = (await super.canActivate(context)) as boolean;
       return parentCanActivate;
     } catch (error) {
       if (error instanceof TokenExpiredError) {
